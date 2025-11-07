@@ -20,6 +20,9 @@ media
 # AWS User-specific
 .idea/**/aws.xml
 
+# Ignores all 'migrations' directories in all apps
+**/migrations/
+
 # Generated files
 .idea/**/contentModel.xml
 
