@@ -1,0 +1,1 @@
+from django_landing_backend.celery import app as celery_app

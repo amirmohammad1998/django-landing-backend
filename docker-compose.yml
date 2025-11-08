@@ -12,7 +12,7 @@ volumes:
   static_volume:
 
 services:
-  # ─── PostgreSQL ───────────────────────────────
+  # PostgreSQL
   postgres:
     image: postgres:16
     container_name: postgres_db
@@ -29,7 +29,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # ─── MongoDB (for logs) ────────────────────────
+  # MongoDB (for logs)
   mongodb:
     image: mongo:7
     container_name: mongo_log_db
@@ -41,7 +41,7 @@ services:
     networks:
       - backend_net
 
-  # ─── RabbitMQ Broker ───────────────────────────
+  # RabbitMQ Broker
   rabbitmq:
     image: rabbitmq:3.13-management
     container_name: rabbitmq_broker
@@ -56,7 +56,7 @@ services:
     networks:
       - backend_net
 
-  # ─── Redis Cache ───────────────────────────────
+  # Redis Cache
   redis:
     image: redis:7.4
     container_name: redis_cache
@@ -68,7 +68,7 @@ services:
     networks:
       - backend_net
 
-  # ─── Django Backend ────────────────────────────
+  # Django Backend
   web:
     build: .
     container_name: django_web
@@ -95,7 +95,7 @@ services:
     networks:
       - backend_net
 
-  # ─── Celery Worker ─────────────────────────────
+  # Celery Worker
   worker:
     build: .
     container_name: celery_worker
@@ -114,7 +114,7 @@ services:
     networks:
       - backend_net
 
-  # ─── Nginx Reverse Proxy ───────────────────────
+  # Nginx Reverse Proxy
   nginx:
     image: nginx:latest
     container_name: nginx_proxy

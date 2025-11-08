@@ -14,7 +14,7 @@ class LandingMediaFile(models.Model):
     def file_type(self):
         """
         Returns file type based on mime-type
-        Example: image/jpeg یا video/mp4
+        Example: image/jpeg or video/mp4
         """
         mime_type, encoding = mimetypes.guess_type(self.file.url)
         return mime_type or 'unknown'

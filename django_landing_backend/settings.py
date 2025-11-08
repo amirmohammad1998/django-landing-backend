@@ -1,20 +1,17 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# ─── Load Environment ─────────────────────────────
+load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Set path of media
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# ─── Core Django Config ─────────────────────────────
+# ─── Core Config ──────────────────────────────────
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "unsafe-secret-key")
 DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "*").split(",")
 
-# ─── Installed Apps ─────────────────────────────────
+# ─── Installed Apps ───────────────────────────────
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -22,14 +19,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Third party apps
-    "rest_framework",
-    "drf_spectacular",
-    # Local apps
-    "landing",
+    'rest_framework',
+    'drf_spectacular',
+    'storages',
+    'landing',
 ]
 
-# ─── Middleware ─────────────────────────────────────
+# ─── Middleware ───────────────────────────────────
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -42,7 +38,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "django_landing_backend.urls"
 
-# ─── Templates (needed for admin/DRF browsable API) ─
+# ─── Templates ────────────────────────────────────
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -58,10 +54,9 @@ TEMPLATES = [
     },
 ]
 
-# ─── WSGI (Gunicorn entrypoint) ─────────────────────
 WSGI_APPLICATION = "django_landing_backend.wsgi.application"
 
-# ─── Database (PostgreSQL) ──────────────────────────
+# ─── Database (PostgreSQL) ─────────────────────────
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -73,60 +68,72 @@ DATABASES = {
     }
 }
 
-# ─── MongoDB Config (for logs) ───────────────────────
-MONGO_CONFIG = {
-    "host": os.getenv("MONGO_HOST", "mongo_log_db"),
-    "port": int(os.getenv("MONGO_PORT", 27017)),
-    "username": os.getenv("MONGO_USER", "landing_mongo"),
-    "password": os.getenv("MONGO_PASSWORD", "landing_mongo_pass"),
-    "db_name": os.getenv("MONGO_INITDB_DATABASE", "landing_logs"),
-}
-
-# ─── Redis Cache ─────────────────────────────────────
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": f"redis://{os.getenv('REDIS_HOST', 'redis_cache')}:{os.getenv('REDIS_PORT', '6379')}/{os.getenv('REDIS_DB', '0')}",
-    }
-}
-
-# ─── Static Files ─────────────────────────────────────
+# ─── Static & Media Paths ─────────────────────────
 STATIC_URL = "/static/"
+MEDIA_URL = "/media/"
 STATIC_ROOT = "/app/static"
+MEDIA_ROOT = BASE_DIR / "media"
 
-# ─── REST Framework ──────────────────────────────────
+# ─── File Storage Setup ────────────────────────────
+if DEBUG:
+    # Local development mode
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+
+else:
+    # Production (ArvanCloud S3-Compatible)
+    AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+    AWS_S3_ENDPOINT_URL = os.getenv("AWS_S3_ENDPOINT_URL")
+    AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "ir-thr")
+
+    AWS_DEFAULT_ACL = None
+    AWS_QUERYSTRING_AUTH = False
+    AWS_S3_FILE_OVERWRITE = False
+
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+            "OPTIONS": {
+                "access_key": AWS_ACCESS_KEY_ID,
+                "secret_key": AWS_SECRET_ACCESS_KEY,
+                "bucket_name": AWS_STORAGE_BUCKET_NAME,
+                "endpoint_url": AWS_S3_ENDPOINT_URL,
+                "region_name": AWS_S3_REGION_NAME,
+            },
+        },
+        "staticfiles": {
+            "BACKEND": "core.storage_backends.StaticStorage",
+            "OPTIONS": {
+                "access_key": AWS_ACCESS_KEY_ID,
+                "secret_key": AWS_SECRET_ACCESS_KEY,
+                "bucket_name": AWS_STORAGE_BUCKET_NAME,
+                "endpoint_url": AWS_S3_ENDPOINT_URL,
+                "region_name": AWS_S3_REGION_NAME,
+            },
+        },
+    }
+
+# ─── REST Framework ───────────────────────────────
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
 }
 
-SPECTACULAR_SETTINGS = {
-    'TITLE': 'EEOverFlow API',
-    'DESCRIPTION': 'API documentation for your Django project with Swagger/OpenAPI.',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
-    'COMPONENT_SPLIT_REQUEST': True,
-    'SCHEMA_PATH_PREFIX': '/api/v1',
-    'COMPONENTS': {
-        'securitySchemes': {
-            'jwtAuth': {
-                'type': 'http',
-                'scheme': 'bearer',
-                'bearerFormat': 'JWT',
-            }
-        }
-    }
-}
-
-# ─── Celery Config Import ────────────────────────────
+# ─── Celery Setup ─────────────────────────────────
 from .celery import app as celery_app
 __all__ = ("celery_app",)
 
-# ─── Other Settings ──────────────────────────────────
+# ─── Time / Defaults ──────────────────────────────
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 TIME_ZONE = "UTC"
 USE_TZ = True

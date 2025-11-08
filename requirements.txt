@@ -1,0 +1,51 @@
+# Core Framework
+Django==5.2.4
+djangorestframework==3.16.0
+drf-spectacular==0.28.0          # OpenAPI auto documentation
+
+# Asynchronous Processing
+celery==5.5.3
+amqp==5.3.1
+kombu==5.5.4
+redis==5.0.1                     # For caching and throttling
+pymongo==4.8.0                   # Logging to MongoDB
+psycopg2-binary==2.9.10          # PostgreSQL driver
+
+# Web Server
+gunicorn==23.0.0                 # Production WSGI server
+
+# Testing & Development
+pytest==8.4.1
+pytest-django==4.11.1
+pytest-cov==6.2.1
+coverage==7.10.2
+factory_boy==3.3.3
+Faker==37.5.3
+
+# Load Testing
+locust==2.38.1
+
+# Utilities
+python-dotenv==1.0.1             # For managing .env configs
+PyYAML==6.0.2                    # For configuration or schema
+
+# boto3
+boto3==1.40.69
+botocore==1.40.69
+jmespath==1.0.1
+s3transfer==0.14.0
+six==1.17.0
+urllib3==2.5.0
+
+# Django storages
+asgiref==3.10.0
+django-storages==1.14.6
+python-dateutil==2.9.0.post0
+sqlparse==0.5.3
+
+
+
+# Note:
+# - JWT not included (not needed for public landing)
+# - Simple regex validation handles phone input safely
+# - RabbitMQ handled via docker-compose service, no Python package needed

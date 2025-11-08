@@ -1,4 +1,4 @@
 from django.contrib import admin
-from landing.models import MediaFile
+from landing.models import LandingMediaFile
 # Register your models here.
-admin.site.register(MediaFile)
+admin.site.register(LandingMediaFile)
