@@ -31,3 +31,13 @@ class LandingMediaFile(models.Model):
 
     def __str__(self):
         return self.title
+
+
+from django.db import models
+
+class Subscriber(models.Model):
+    phone = models.CharField(max_length=11, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.phone

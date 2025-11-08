@@ -22,6 +22,10 @@ if [ "$CELERY_WORKER" = "true" ]; then
   exec celery -A django_landing_backend worker --loglevel=info -P gevent
 else
   echo "Starting Gunicorn..."
-  exec gunicorn django_landing_backend.wsgi:application --bind 0.0.0.0:8000 --workers=4
+  exec gunicorn django_landing_backend.wsgi:application \
+    --bind 0.0.0.0:8000 \
+    --workers=4 \
+    --access-logfile - \
+    --error-logfile -
 fi
 
