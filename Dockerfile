@@ -1,14 +1,13 @@
 FROM python:3.12-slim-bookworm
 
-# ENVIRONMENT
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
 # INSTALL SYSTEM DEPENDENCIES (for pg_isready)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    postgresql-client \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # DEPENDENCIES

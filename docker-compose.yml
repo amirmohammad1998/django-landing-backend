@@ -40,7 +40,23 @@ services:
       - mongo_data:/data/db
     networks:
       - backend_net
-
+#  # Logs monitoring
+#  mongo-express:
+#    image: mongo-express
+#    container_name: mongo_express
+#    ports:
+#      - "8081:8081"
+#    environment:
+#      - ME_CONFIG_MONGODB_SERVER=mongodb
+#      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+#      - ME_CONFIG_MONGODB_ADMINPASSWORD=root
+#    env_file:
+#      - .env
+#    depends_on:
+#      - mongodb
+#    networks:
+#      - backend_net
+#    restart: always
   # RabbitMQ Broker
   rabbitmq:
     image: rabbitmq:3.13-management
@@ -113,7 +129,21 @@ services:
       - mongodb
     networks:
       - backend_net
-
+  # Flower
+  flower:
+    image: mher/flower
+    container_name: celery_flower
+    command: celery --broker=amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672// flower --port=5555
+    ports:
+      - "5555:5555"
+    depends_on:
+      - rabbitmq
+      - web
+    env_file:
+      - .env
+    networks:
+      - backend_net
+    restart: always
   # Nginx Reverse Proxy
   nginx:
     image: nginx:latest
