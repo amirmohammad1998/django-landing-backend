@@ -122,7 +122,7 @@ These instructions detail the process for setting up the complete, containerized
 
 Obtain the source code from the designated repository.
 
-git clone https://github.com/django-landing-backend.git
+git clone https://github.com/amirmohammad1998/django-landing-backend.git
 cd landing_page_backend
 
 
