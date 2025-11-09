@@ -32,8 +32,12 @@ services:
   # MongoDB (for logs)
   mongodb:
     image: mongo:7
-    container_name: mongo_log_db
+    container_name: mongodb
     restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: landing_logs
     env_file:
       - .env
     volumes:
@@ -41,22 +45,20 @@ services:
     networks:
       - backend_net
 #  # Logs monitoring
-#  mongo-express:
-#    image: mongo-express
-#    container_name: mongo_express
-#    ports:
-#      - "8081:8081"
-#    environment:
-#      - ME_CONFIG_MONGODB_SERVER=mongodb
-#      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
-#      - ME_CONFIG_MONGODB_ADMINPASSWORD=root
-#    env_file:
-#      - .env
-#    depends_on:
-#      - mongodb
-#    networks:
-#      - backend_net
-#    restart: always
+  mongo-express:
+    image: mongo-express:1.0.0-18
+    container_name: mongo_express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://root:root@mongodb:27017/admin?authSource=admin
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: pass
+    depends_on:
+      - mongodb
+    networks:
+      - backend_net
   # RabbitMQ Broker
   rabbitmq:
     image: rabbitmq:3.13-management
